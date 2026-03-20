@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RonnaScanner — Company Data Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- SEO & Social -->
+  <meta name="description" content="Scan any company for overview, funding, tech stack, key employees, social profiles, and news." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ronnascanner.com/companies" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ronnascanner.com/companies" />
+  <meta property="og:title" content="RonnaScanner — Company Data Scanner" />
+  <meta property="og:description" content="Scan any company for overview, funding, tech stack, key employees, social profiles, and news." />
+  <meta property="og:image" content="https://ronnascanner.com/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="RonnaScanner — Company Data Scanner" />
+  <meta name="twitter:description" content="Scan any company for overview, funding, tech stack, key employees, social profiles, and news." />
+  <meta name="twitter:image" content="https://ronnascanner.com/og-image.png" />
+
+  <!-- Theme color -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#F97316" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="nav" aria-label="Main navigation">
+    <a href="/" class="nav-brand">ronna<span>.</span>scanner</a>
+    <div class="nav-links">
+      <span class="plan-badge plan-badge-pro plan-badge-hidden" id="plan-badge"></span>
+      <a href="#" id="nav-login" class="nav-link">Sign In</a>
+      <button class="btn-upgrade-nav nav-upgrade-hidden" id="nav-upgrade">&#9889; Upgrade</button>
+      <button class="btn-icon nav-manage-hidden" id="nav-manage">Manage Plan</button>
+      <a href="#" id="nav-signup" class="btn-nav">Free Trial</a>
+    </div>
+  </nav>
+  <div class="modal-overlay hidden" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="modal">
+      <button class="modal-close" id="modal-close" aria-label="Close dialog">&times;</button>
+      <div class="modal-tabs">
+        <button class="tab-btn active" data-tab="login">Sign In</button>
+        <button class="tab-btn" data-tab="signup">Sign Up</button>
+      </div>
+      <div class="tab-content" id="tab-login">
+        <input type="email" class="input" id="login-email" placeholder="Email" />
+        <input type="password" class="input" id="login-password" placeholder="Password" />
+        <button class="btn-primary full" id="btn-login" aria-label="Sign in to your account">Sign In</button>
+      </div>
+      <div class="tab-content hidden" id="tab-signup">
+        <input type="text" class="input" id="signup-name" placeholder="Full Name" />
+        <input type="email" class="input" id="signup-email" placeholder="Email" />
+        <input type="password" class="input" id="signup-password" placeholder="Password" />
+        <button class="btn-primary full" id="btn-signup" aria-label="Create a new account">Start Free Trial</button>
+      </div>
+      <p class="auth-error hidden" id="auth-error"></p>
+    </div>
+  </div>
+  <section class="hero" id="main-content">
+    <div class="hero-badge">Full Company Intelligence</div>
+    <h1 class="hero-title"><em>Company Data Scanner</em></h1>
+    <p class="hero-sub">Pull firmographic data, tech stack, funding info, and key personnel for any company.</p>
+  </section>
+  <section class="tool-section" aria-label="Main tool" id="tool">
+    <div id="usage-meter-container"></div>
+    <div class="tool-container" id="tool-container">
+      <div class="tool-panel">
+        <div class="panel-header"><span class="panel-num">01</span><h2>Company Data Scanner</h2></div>
+        <div class="filter-grid">
+          <div><label class="field-label">Company Name or Domain</label><input type="text" class="input" id="filter-company" placeholder="e.g. stripe.com"/></div>
+          <div><label class="field-label">Data Points</label>
+            <select class="input" id="filter-data" multiple size="5" >
+              <option value="overview" selected>Company Overview</option>
+              <option value="funding" selected>Funding History</option>
+              <option value="tech">Tech Stack</option>
+              <option value="employees">Key Employees</option>
+              <option value="news">Recent News</option>
+              <option value="social">Social Profiles</option>
+            </select></div>
+        </div>
+        <div class="tool-actions"><button class="btn-primary large" id="btn-scan"><span class="btn-text">🏢 Scan Company</span><span class="btn-loader hidden">Scanning...</span></button></div>
+      </div>
+      <div class="results-panel hidden" id="results-panel">
+        <div id="company-report"></div>
+        <div class="toolbar-actions" class="mt-1">
+          <button class="btn-icon" id="btn-export">⬇️ Export JSON</button>
+          <button class="btn-icon" id="btn-save" aria-label="Save result">💾 Save</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <p>&copy; 2025 ronnascanner.com &mdash; Powered by Apollo, Hunter &amp; Clearbit</p>
+  </footer>
+  <script type="module" src="js/app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
