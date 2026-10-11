@@ -14,7 +14,7 @@ initRonna({ usageAction: "scans" }).then(user => {
   if (user) loadHistory();
 });
 document.getElementById("btn-scan").addEventListener("click", () => {
-  const company = document.getElementById("company-input").value.trim();
+  const company = document.getElementById("filter-company").value.trim();
   if (!company) return toast.warning("Enter a company name or domain.");
   gate("scans", () => runScan(company), () => {});
 });
@@ -25,10 +25,11 @@ async function runScan(company) {
   document.getElementById("btn-scan").disabled = true;
 
   try {
-    const res = await apiFetch("/api/companies/scan", { company, depth: document.getElementById("data-depth")
+    const data = await apiFetch("/api/companies/scan", {
+      company,
+      dataPoints: Array.from(document.getElementById("filter-data")?.selectedOptions || [], o => o.value)
     });
-    const data = await res.json();
-    results = data.company || null;
+    results = data?.company || null;
   } catch {
     results = null;
   }
@@ -40,7 +41,7 @@ async function runScan(company) {
 }
 
 function renderCompany(c) {
-  const grid = document.getElementById("company-profile-grid");
+  const grid = document.getElementById("company-report");
   grid.innerHTML = `
     <div class="tool-panel company-card-main">
       <div class="company-header">
@@ -71,8 +72,8 @@ function renderCompany(c) {
     <div class="tool-panel"><h4>Competitors</h4>
       <div class="tags-wrap">${(c.competitors||[]).map(comp=>`<span class="tag tag-blue">${comp}</span>`).join("")||"—"}</div>
     </div>`;
-  document.getElementById("company-result").classList.remove("hidden");
-  document.getElementById("company-result").scrollIntoView({ behavior: "smooth" });
+  document.getElementById("results-panel").classList.remove("hidden");
+  document.getElementById("results-panel").scrollIntoView({ behavior: "smooth" });
 }
 
 document.getElementById("btn-export")?.addEventListener("click", () => {
@@ -89,9 +90,9 @@ document.getElementById("btn-save")?.addEventListener("click", async () => {
 });
 
 async function loadHistory() {
-  const items = await getFromFirestore("company-profiles");
   const grid = document.getElementById("history-grid");
-  if (!grid) return;
+  if (!grid) return; // no history UI on this page
+  const items = await getFromFirestore("company-profiles");
   document.getElementById("history-section").classList.remove("hidden");
   grid.innerHTML = items.length
     ? items.map(i => `<div class="result-card"><strong>${i.name || "Company"}</strong><small>${i.createdAt?.toDate?.().toLocaleDateString?.() || "Recently"}</small></div>`).join("")
@@ -100,10 +101,10 @@ async function loadHistory() {
 
 // RONNA-MOCK-FALLBACK: never fabricate results when the scanner API is unavailable.
 function showUnavailable() {
-  const panel = document.getElementById("results-panel") || document.getElementById("results-section");
-  if (panel) {
-    panel.classList.remove("hidden");
-    panel.innerHTML = '<div class="empty-state" role="status"><p><strong>The scanner service is unavailable right now.</strong></p><p>No results were generated. Please try again later.</p></div>';
-  }
+  // Render into the report container so the Export/Save toolbar stays intact for a retry.
+  results = null;
+  document.getElementById("results-panel")?.classList.remove("hidden");
+  const report = document.getElementById("company-report");
+  if (report) report.innerHTML = '<div class="empty-state" role="status"><p><strong>The scanner service is unavailable right now.</strong></p><p>No results were generated. Please try again later.</p></div>';
   toast.error("Scanner service unavailable. No results were generated.");
 }
