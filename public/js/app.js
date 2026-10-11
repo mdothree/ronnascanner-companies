@@ -28,12 +28,12 @@ async function runScan(company) {
     const res = await apiFetch("/api/companies/scan", { company, depth: document.getElementById("data-depth")
     });
     const data = await res.json();
-    results = data.company || mockCompanyData(company);
+    results = data.company || null;
   } catch {
-    results = mockCompanyData(company);
+    results = null;
   }
 
-  renderCompany(results);
+  if (results) renderCompany(results); else showUnavailable();
   document.querySelector(".btn-text").classList.remove("hidden");
   document.querySelector(".btn-loader").classList.add("hidden");
   document.getElementById("btn-scan").disabled = false;
@@ -98,18 +98,12 @@ async function loadHistory() {
     : "<p class='empty-state'>No saved companies yet.</p>";
 }
 
-function mockCompanyData(name) {
-  return {
-    name, description: "A leading B2B software company driving digital transformation.",
-    industry: "SaaS / Software", founded: "2012", employees: "1,200–2,500",
-    revenue: "$150M–$300M ARR", location: "Austin, TX",
-    website: name.toLowerCase().replace(/ /g,"") + ".com",
-    type: "Private", fundingStage: "Series D",
-    totalFunding: "$280M", lastRound: "Series D — $85M (2023)",
-    investors: ["Sequoia Capital","Accel","Tiger Global"],
-    tags: ["B2B","SaaS","Enterprise","API"],
-    techStack: ["React","Node.js","AWS","Kubernetes","Salesforce","Marketo","Zendesk"],
-    signals: ["📈 Revenue grew 42% YoY","🏢 Expanded to EMEA","👥 Hiring 150+ this quarter","🤝 New strategic partnership with AWS"],
-    competitors: ["Competitor A","Competitor B","Competitor C"]
-  };
+// RONNA-MOCK-FALLBACK: never fabricate results when the scanner API is unavailable.
+function showUnavailable() {
+  const panel = document.getElementById("results-panel") || document.getElementById("results-section");
+  if (panel) {
+    panel.classList.remove("hidden");
+    panel.innerHTML = '<div class="empty-state" role="status"><p><strong>The scanner service is unavailable right now.</strong></p><p>No results were generated. Please try again later.</p></div>';
+  }
+  toast.error("Scanner service unavailable. No results were generated.");
 }
