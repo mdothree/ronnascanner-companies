@@ -4,7 +4,7 @@ import { saveDoc, getUserDocs, tsToString } from "./services/firestoreService.js
 import { apiFetch } from "./config/env.js";
 import { toast } from "./utils/toast.js";
 import { gate } from "./services/paywallUI.js";
-import { downloadText, setLoading, formatNumber } from "./utils/helpers.js";
+import { downloadText, setLoading, formatNumber, escapeHtml } from "./utils/helpers.js";
 
 
 let results = [];
@@ -46,32 +46,32 @@ function renderCompany(c) {
   grid.innerHTML = `
     <div class="tool-panel company-card-main">
       <div class="company-header">
-        <div class="company-logo">${c.name?.charAt(0) || "?"}</div>
+        <div class="company-logo">${escapeHtml(c.name?.charAt?.(0) || "?")}</div>
         <div>
-          <h2>${c.name}</h2>
-          <p>${c.description || ""}</p>
-          <div class="profile-tags">${(c.tags||[]).map(t=>`<span class="tag tag-orange">${t}</span>`).join("")}</div>
+          <h2>${escapeHtml(c.name)}</h2>
+          <p>${escapeHtml(c.description)}</p>
+          <div class="profile-tags">${(c.tags||[]).map(t=>`<span class="tag tag-orange">${escapeHtml(t)}</span>`).join("")}</div>
         </div>
       </div>
     </div>
     <div class="tool-panel"><h4>Firmographics</h4>
       <div class="profile-rows">
-        ${[["Industry",c.industry],["Founded",c.founded],["Employees",c.employees],["Revenue",c.revenue],["HQ",c.location],["Website",c.website],["Type",c.type]].map(([l,v])=>`<div class="profile-row"><span>${l}</span><strong>${v||"—"}</strong></div>`).join("")}
+        ${[["Industry",c.industry],["Founded",c.founded],["Employees",c.employees],["Revenue",c.revenue],["HQ",c.location],["Website",c.website],["Type",c.type]].map(([l,v])=>`<div class="profile-row"><span>${escapeHtml(l)}</span><strong>${escapeHtml(v||"—")}</strong></div>`).join("")}
       </div>
     </div>
     <div class="tool-panel"><h4>Tech Stack</h4>
-      <div class="tags-wrap">${(c.techStack||[]).map(t=>`<span class="tag tag-gray">${t}</span>`).join("")||"—"}</div>
+      <div class="tags-wrap">${(c.techStack||[]).map(t=>`<span class="tag tag-gray">${escapeHtml(t)}</span>`).join("")||"—"}</div>
     </div>
     <div class="tool-panel"><h4>Funding</h4>
       <div class="profile-rows">
-        ${[["Stage",c.fundingStage],["Total Raised",c.totalFunding],["Investors",c.investors?.join(", ")],["Last Round",c.lastRound]].map(([l,v])=>`<div class="profile-row"><span>${l}</span><strong>${v||"—"}</strong></div>`).join("")}
+        ${[["Stage",c.fundingStage],["Total Raised",c.totalFunding],["Investors",c.investors?.join(", ")],["Last Round",c.lastRound]].map(([l,v])=>`<div class="profile-row"><span>${escapeHtml(l)}</span><strong>${escapeHtml(v||"—")}</strong></div>`).join("")}
       </div>
     </div>
     <div class="tool-panel"><h4>Key Signals</h4>
-      <ul class="signals-list">${(c.signals||[]).map(s=>`<li>${s}</li>`).join("")||"<li>No signals</li>"}</ul>
+      <ul class="signals-list">${(c.signals||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join("")||"<li>No signals</li>"}</ul>
     </div>
     <div class="tool-panel"><h4>Competitors</h4>
-      <div class="tags-wrap">${(c.competitors||[]).map(comp=>`<span class="tag tag-blue">${comp}</span>`).join("")||"—"}</div>
+      <div class="tags-wrap">${(c.competitors||[]).map(comp=>`<span class="tag tag-blue">${escapeHtml(comp)}</span>`).join("")||"—"}</div>
     </div>`;
   document.getElementById("results-panel").classList.remove("hidden");
   document.getElementById("results-panel").scrollIntoView({ behavior: "smooth" });
@@ -96,7 +96,7 @@ async function loadHistory() {
   const items = await getFromFirestore("company-profiles");
   document.getElementById("history-section").classList.remove("hidden");
   grid.innerHTML = items.length
-    ? items.map(i => `<div class="result-card"><strong>${i.name || "Company"}</strong><small>${i.createdAt?.toDate?.().toLocaleDateString?.() || "Recently"}</small></div>`).join("")
+    ? items.map(i => `<div class="result-card"><strong>${escapeHtml(i.name || "Company")}</strong><small>${escapeHtml(i.createdAt?.toDate?.().toLocaleDateString?.() || "Recently")}</small></div>`).join("")
     : "<p class='empty-state'>No saved companies yet.</p>";
 }
 
