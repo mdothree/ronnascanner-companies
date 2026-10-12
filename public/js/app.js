@@ -1,4 +1,5 @@
 import { initRonna } from "./utils/ronnaBase.js";
+import { authService } from "./services/authService.js";
 import { saveDoc, getUserDocs, tsToString } from "./services/firestoreService.js";
 import { apiFetch } from "./config/env.js";
 import { toast } from "./utils/toast.js";
@@ -85,7 +86,7 @@ document.getElementById("btn-export")?.addEventListener("click", () => {
 
 document.getElementById("btn-save")?.addEventListener("click", async () => {
   if (!results) return;
-  await saveToFirestore("company-profiles", { profile: results, name: results.name });
+  if (!(await saveToFirestore("company-profiles", { profile: results, name: results.name }))) return;
   loadHistory(); toast.success("Saved!");
 });
 
@@ -107,4 +108,30 @@ function showUnavailable() {
   const report = document.getElementById("company-report");
   if (report) report.innerHTML = '<div class="empty-state" role="status"><p><strong>The scanner service is unavailable right now.</strong></p><p>No results were generated. Please try again later.</p></div>';
   toast.error("Scanner service unavailable. No results were generated.");
+}
+
+// RONNA-LOADLIST-AWAIT-BUG (same class on this sub): saveToFirestore / getFromFirestore
+// (and downloadFile / toCSV where used) were called but never defined → ReferenceError on
+// Save / history load. Defined here on top of the shared Firestore service.
+async function saveToFirestore(collectionName, data) {
+  const user = authService.currentUser();
+  if (!user) { document.getElementById("auth-modal")?.classList.remove("hidden"); return false; }
+  try {
+    await saveDoc(collectionName, user.uid, data);
+    return true;
+  } catch (e) {
+    toast.error("Could not save. Please try again.");
+    return false;
+  }
+}
+
+async function getFromFirestore(collectionName) {
+  const user = authService.currentUser();
+  if (!user) return [];
+  try {
+    return await getUserDocs(collectionName, user.uid);
+  } catch (e) {
+    console.warn("[ronna] could not load history", e);
+    return [];
+  }
 }
